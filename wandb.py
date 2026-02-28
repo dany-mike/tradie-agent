@@ -43,6 +43,5 @@ def chat(prompt: str) -> str:
     return content
 
 result = chat(PROMPT)
-print(result)
 
 wandb.finish()
