@@ -1,4 +1,20 @@
 # from vapi import create_assistant, make_call
+import os
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+VAPI_API_KEY = os.getenv("VAPI_API_KEY")
+VAPI_BASE_URL = "https://api.vapi.ai"
+
+def get_assistant_by_id(assistant_id: str) -> dict:
+    response = requests.get(
+        f"{VAPI_BASE_URL}/assistant/{assistant_id}",
+        headers={"Authorization": f"Bearer {VAPI_API_KEY}"},
+    )
+    response.raise_for_status()
+    return response.json()
 
 def get_tradie_phone(resume: str) -> str:
     for line in resume.splitlines():
@@ -62,8 +78,9 @@ def get_job_hunting_system_prompt(resume: str, jobAds: str) -> str:
     return f"""You are a confident, professional recruitment agent negotiating a salary offer for your candidate."""
 
 def launch_knowledge_call(candidate_phone: str, knowledge_call_system_prompt) -> dict:
-    print("launch knowledge call")
-    # print("knowledge call launched", candidate_phone, knowledge_call_system_prompt)
+    print("test")
+    assistant = get_assistant_by_id("86009aff-a136-43eb-989f-30db2b49e85c")
+    print(assistant)
 
 # ---------------------------------------------------------------------------
 # Bot 2 — Salary negotiation bot
