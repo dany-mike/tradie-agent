@@ -1,9 +1,11 @@
 from fastapi import FastAPI, APIRouter, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from domain import get_phone, get_knowledge_call_system_prompt, create_assistant, launch_negotiation_call, launch_knowledge_call, SERVER_URL
 
 app = FastAPI()
+app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 router = APIRouter(prefix="/launch", tags=["launch"])
 
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Resume Launcher — Mistral AI Hackathon</title>
+  <title>A Profitable Digital Twin</title>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet" />
@@ -262,6 +262,43 @@
       opacity: 0.5;
     }
 
+    /* Mistral AI badge — fixed bottom-right */
+    .mistral-badge {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(20, 20, 20, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      text-decoration: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .mistral-badge:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 16px rgba(255, 107, 43, 0.15);
+    }
+
+    .mistral-badge span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    .mistral-badge img {
+      height: 18px;
+      opacity: 0.9;
+    }
+
     /* Scrollbar */
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -275,11 +312,8 @@
   <div class="container" x-data="resumeApp()">
 
     <div class="header">
-      <img src="https://mintlify.s3.us-west-1.amazonaws.com/mistral/logo/light.svg"
-           alt="Mistral AI"
-           onerror="this.style.display='none'" />
-      <h1>Resume Launcher</h1>
-      <span>Hackathon</span>
+      <h1>A Profitable Digital Twin</h1>
+      <span>Mistral AI Hackathon</span>
     </div>
 
     <!-- Drop Zone -->
@@ -329,7 +363,7 @@
         <span><span class="spinner"></span>Analyzing...</span>
       </template>
       <template x-if="!loading">
-        <span>🚀 Launch Resume</span>
+        <span>🚀 Launch</span>
       </template>
     </button>
 
@@ -404,6 +438,13 @@
       };
     }
   </script>
+
+  <!-- Mistral AI powered-by badge -->
+  <a class="mistral-badge" href="https://mistral.ai" target="_blank" rel="noopener">
+    <span>Powered by</span>
+    <img src="assets/mistral-logo-color-white.png"
+         alt="Mistral AI" />
+  </a>
 
 </body>
 </html>
