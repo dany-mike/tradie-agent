@@ -79,8 +79,37 @@ Here is THE RESUME
 def get_job_hunting_system_prompt(resume: str, jobAds: str) -> str:
     return f"""You are a confident, professional recruitment agent negotiating a salary offer for your candidate."""
 
-def create_assistant():
-    print("create assistant")
+def create_assistant(name: str, system_prompt: str, first_message: str = "Hello.") -> dict:
+    response = requests.post(
+        f"{VAPI_BASE_URL}/assistant",
+        headers={"Authorization": f"Bearer {VAPI_API_KEY}"},
+        json={
+            "name": name,
+            "model": {
+                "provider": "mistral",
+                "model": "mistral-large-latest",
+                "messages": [{"role": "system", "content": system_prompt}],
+                "maxTokens": 200,
+                "temperature": 0.7,
+            },
+            "voice": {
+                "provider": "vapi",
+                "voiceId": "Elliot",
+                "speed": 0.85,
+            },
+            "transcriber": {
+                "provider": "deepgram",
+                "model": "flux-general-en",
+                "language": "en",
+            },
+            "firstMessage": first_message,
+            "voicemailMessage": "Please call back when you're available.",
+            "endCallMessage": "Goodbye.",
+            "backgroundDenoisingEnabled": True,
+        },
+    )
+    response.raise_for_status()
+    return response.json()
 
 def launch_knowledge_call(candidate_phone: str, knowledge_call_system_prompt: str, knowledge_assistant_id: str) -> dict:
     response = requests.post(
