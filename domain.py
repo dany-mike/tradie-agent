@@ -6,7 +6,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 VAPI_API_KEY = os.getenv("VAPI_API_KEY")
+VAPI_PHONE_NUMBER_ID = os.getenv("VAPI_PHONE_NUMBER_ID")
 VAPI_BASE_URL = "https://api.vapi.ai"
+KNOWLEDGE_ASSISTANT_ID = "86009aff-a136-43eb-989f-30db2b49e85c"
 
 def get_assistant_by_id(assistant_id: str) -> dict:
     response = requests.get(
@@ -77,10 +79,27 @@ Here is THE RESUME
 def get_job_hunting_system_prompt(resume: str, jobAds: str) -> str:
     return f"""You are a confident, professional recruitment agent negotiating a salary offer for your candidate."""
 
-def launch_knowledge_call(candidate_phone: str, knowledge_call_system_prompt) -> dict:
-    print("test")
-    assistant = get_assistant_by_id("86009aff-a136-43eb-989f-30db2b49e85c")
-    print(assistant)
+def launch_knowledge_call(candidate_phone: str, knowledge_call_system_prompt: str) -> dict:
+    response = requests.post(
+        f"{VAPI_BASE_URL}/call",
+        headers={"Authorization": f"Bearer {VAPI_API_KEY}"},
+        json={
+            "assistantId": KNOWLEDGE_ASSISTANT_ID,
+            "assistantOverrides": {
+                "model": {
+                    "messages": [
+                        {"role": "system", "content": knowledge_call_system_prompt}
+                    ]
+                }
+            },
+            "phoneNumberId": VAPI_PHONE_NUMBER_ID,
+            "customer": {
+                "number": candidate_phone,
+            },
+        },
+    )
+    response.raise_for_status()
+    return response.json()
 
 # ---------------------------------------------------------------------------
 # Bot 2 — Salary negotiation bot

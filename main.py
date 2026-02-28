@@ -9,8 +9,8 @@ async def create_candidate(resume: UploadFile = File(...)):
     content = await resume.read()
     resume_text = content.decode("utf-8")
     phone = get_tradie_phone(resume_text)
-    system_prompt = get_knowledge_call_system_prompt(resume_text)
-    result = launch_knowledge_call(phone, system_prompt)
+    knowledge_system_prompt = get_knowledge_call_system_prompt(resume_text)
+    result = launch_knowledge_call(phone, knowledge_system_prompt)
     # return result
 
 app.include_router(router)
