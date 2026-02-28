@@ -143,38 +143,40 @@ Full resume for reference:
 - If an unexpected issue arises, remain composed and reassure the other party of your intent to resolve it professionally.
 """
 
-def create_assistant(name: str, system_prompt: str, first_message: str = "Hello.", voice: dict | None = None) -> dict:
+def create_assistant(name: str, system_prompt: str, first_message: str = "Hello.", voice: dict | None = None, server_url: str | None = None) -> dict:
+    payload = {
+        "name": name,
+        "model": {
+            "provider": "mistral",
+            "model": "mistral-large-latest",
+            "messages": [{"role": "system", "content": system_prompt}],
+            "maxTokens": 200,
+            "temperature": 0.7,
+        },
+        "voice": voice or {
+            "provider": "vapi",
+            "voiceId": "Elliot",
+            "speed": 0.85,
+        },
+        "transcriber": {
+            "provider": "deepgram",
+            "model": "flux-general-en",
+            "language": "en",
+        },
+        "firstMessage": first_message,
+        "voicemailMessage": "Please call back when you're available.",
+        "endCallMessage": "Goodbye.",
+        "backgroundDenoisingEnabled": True,
+        "analysisPlan": {
+            "summaryPlan": {"enabled": True},
+        },
+    }
+    if server_url:
+        payload["serverUrl"] = server_url
     response = requests.post(
         f"{VAPI_BASE_URL}/assistant",
         headers={"Authorization": f"Bearer {VAPI_API_KEY}"},
-        json={
-            "name": name,
-            "serverUrl": f"{SERVER_URL}/webhook",
-            "model": {
-                "provider": "mistral",
-                "model": "mistral-large-latest",
-                "messages": [{"role": "system", "content": system_prompt}],
-                "maxTokens": 200,
-                "temperature": 0.7,
-            },
-            "voice": voice or {
-                "provider": "vapi",
-                "voiceId": "Elliot",
-                "speed": 0.85,
-            },
-            "transcriber": {
-                "provider": "deepgram",
-                "model": "flux-general-en",
-                "language": "en",
-            },
-            "firstMessage": first_message,
-            "voicemailMessage": "Please call back when you're available.",
-            "endCallMessage": "Goodbye.",
-            "backgroundDenoisingEnabled": True,
-            "analysisPlan": {
-                "summaryPlan": {"enabled": True},
-            },
-        },
+        json=payload,
     )
     if not response.ok:
         print(f"VAPI create_assistant error {response.status_code}: {response.text}")

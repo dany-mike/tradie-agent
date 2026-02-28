@@ -1,8 +1,22 @@
 from fastapi import FastAPI, APIRouter, UploadFile, File, Request
-from domain import get_phone, get_knowledge_call_system_prompt, create_assistant, launch_negotiation_call, launch_knowledge_call
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from domain import get_phone, get_knowledge_call_system_prompt, create_assistant, launch_negotiation_call, launch_knowledge_call, SERVER_URL
 
 app = FastAPI()
 router = APIRouter(prefix="/launch", tags=["launch"])
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/")
+async def serve_frontend():
+    return FileResponse("index.html")
 
 @router.post("/", status_code=201)
 async def create_candidate(resume: UploadFile = File(...)):
@@ -10,7 +24,7 @@ async def create_candidate(resume: UploadFile = File(...)):
     resume_text = content.decode("utf-8")
     phone = get_phone(resume_text)
     knowledge_system_prompt = get_knowledge_call_system_prompt(resume_text)
-    assistant = create_assistant("interview assistant", knowledge_system_prompt, "Hello here Manoa")
+    assistant = create_assistant("interview assistant", knowledge_system_prompt, "Hello here Manoa", server_url=f"{SERVER_URL}/webhook")
     launch_knowledge_call(phone, assistant["id"])
 
 @app.post("/webhook")
