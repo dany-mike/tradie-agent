@@ -5,6 +5,7 @@
 **Role:** Senior Level 2 ASP Electrician / Electrical Foreman
 **Employment Type:** Full-Time, Permanent
 **Salary Range:** $120,000 - $145,000 + Super + Fully Maintained Company Vehicle
+**Phone number:** 0466818337
 
 ---
 

@@ -7,8 +7,13 @@ load_dotenv()
 
 VAPI_API_KEY = os.getenv("VAPI_API_KEY")
 VAPI_PHONE_NUMBER_ID = os.getenv("VAPI_PHONE_NUMBER_ID")
+SERVER_URL = os.getenv("SERVER_URL")
 VAPI_BASE_URL = "https://api.vapi.ai"
 KNOWLEDGE_ASSISTANT_ID = "86009aff-a136-43eb-989f-30db2b49e85c"
+
+def get_job_ads():
+    with open("Fictional_Job_Ad_VoltStrike.md", "r") as f:
+        return f.read()
 
 def get_assistant_by_id(assistant_id: str) -> dict:
     response = requests.get(
@@ -18,7 +23,7 @@ def get_assistant_by_id(assistant_id: str) -> dict:
     response.raise_for_status()
     return response.json()
 
-def get_tradie_phone(resume: str) -> str:
+def get_phone(resume: str) -> str:
     for line in resume.splitlines():
         if "phone" in line.lower():
             number = line.split(":", 1)[-1].strip().lstrip("* ").strip()
@@ -88,6 +93,7 @@ def create_assistant(name: str, system_prompt: str, first_message: str = "Hello.
         headers={"Authorization": f"Bearer {VAPI_API_KEY}"},
         json={
             "name": name,
+            "serverUrl": f"{SERVER_URL}/webhook",
             "model": {
                 "provider": "mistral",
                 "model": "mistral-large-latest",
@@ -109,26 +115,20 @@ def create_assistant(name: str, system_prompt: str, first_message: str = "Hello.
             "voicemailMessage": "Please call back when you're available.",
             "endCallMessage": "Goodbye.",
             "backgroundDenoisingEnabled": True,
+            "analysisPlan": {
+                "summaryPlan": {"enabled": True},
+            },
         },
     )
     response.raise_for_status()
     return response.json()
 
-def launch_knowledge_call(candidate_phone: str, knowledge_call_system_prompt: str, knowledge_assistant_id: str) -> dict:
+def launch_knowledge_call(candidate_phone: str, knowledge_assistant_id: str) -> dict:
     response = requests.post(
         f"{VAPI_BASE_URL}/call",
         headers={"Authorization": f"Bearer {VAPI_API_KEY}"},
         json={
             "assistantId": knowledge_assistant_id,
-            "assistantOverrides": {
-                "model": {
-                    "provider": "mistral",
-                    "model": "mistral-large-latest",
-                    "messages": [
-                        {"role": "system", "content": knowledge_call_system_prompt}
-                    ]
-                }
-            },
             "phoneNumberId": VAPI_PHONE_NUMBER_ID,
             "customer": {
                 "number": candidate_phone,
@@ -145,17 +145,13 @@ def launch_knowledge_call(candidate_phone: str, knowledge_call_system_prompt: st
 # Goal: call tradie companies, persuasively negotiate salary using enriched profile
 # ---------------------------------------------------------------------------
 
-def launch_negotiation_call(
-    company_phone: str,
-    enriched_qa: dict | None = None,
-) -> dict:
+def launch_negotiation_call(summary: str) -> dict:
     """Bot 2: calls tradie companies to negotiate salary on behalf of the candidate."""
     resume = get_resume()
     system_prompt = get_knowledge_call_system_prompt(resume)
-    first_message = (
-        f"Hi, my name is Jordan and I'm a recruitment consultant. "
-        f"I'm calling on behalf of , a "
-        f"with years of experience. "
-        "Is the hiring manager available for a quick two-minute chat?"
-    )
+    job_ads = get_job_ads()
+    print(resume)
+    print(system_prompt)
+    print(job_ads)
+    print(summary)
     # return {"bot": "negotiation", "call": call}
