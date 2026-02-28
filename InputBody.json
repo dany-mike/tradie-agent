@@ -1,0 +1,17 @@
+{
+  "name": "John Sparky",
+  "address": "Sydney, NSW",
+  "age": 25,
+  "role": "Sparky",
+  "years_of_experience": 5,
+  "current_salary": 90000,
+  "target_salary": 120000,
+  "current_company": "Sparky Chippendale",
+  "past_companies": ["Sparky Pyrmont", "Sparky Surry Hills"],
+  "interesting_qa": {
+    "most_challenging_project": "Installing a new electrical panel in a high-rise building in the CBD. I had to work at night and in the rain.",
+    "reason_for_change": "Looking for new opportunities in the CBD and wanting to work with a human-sized company.",
+    "interesting_facts": "I have been a Sparky for 5 years and I have built my own robot at home.",
+    "managed_team": "No"
+  }
+}
