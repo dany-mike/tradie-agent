@@ -9,6 +9,20 @@ VAPI_API_KEY = os.getenv("VAPI_API_KEY")
 VAPI_PHONE_NUMBER_ID = os.getenv("VAPI_PHONE_NUMBER_ID")
 SERVER_URL = os.getenv("SERVER_URL")
 VAPI_BASE_URL = "https://api.vapi.ai"
+ELEVEN_LABS_API_KEY = os.getenv("ELEVEN_LABS_API_KEY")
+
+def get_eleven_labs_voice(name: str) -> str:
+    """Return the ElevenLabs voice_id for an existing voice matched by name."""
+    resp = requests.get(
+        "https://api.elevenlabs.io/v1/voices",
+        headers={"xi-api-key": ELEVEN_LABS_API_KEY},
+    )
+    resp.raise_for_status()
+    voices = resp.json().get("voices", [])
+    for voice in voices:
+        if voice.get("name") == name:
+            return voice["voice_id"]
+    raise ValueError(f"ElevenLabs voice '{name}' not found")
 KNOWLEDGE_ASSISTANT_ID = "86009aff-a136-43eb-989f-30db2b49e85c"
 
 def get_job_ads():
@@ -129,7 +143,7 @@ Full resume for reference:
 - If an unexpected issue arises, remain composed and reassure the other party of your intent to resolve it professionally.
 """
 
-def create_assistant(name: str, system_prompt: str, first_message: str = "Hello.") -> dict:
+def create_assistant(name: str, system_prompt: str, first_message: str = "Hello.", voice: dict | None = None) -> dict:
     response = requests.post(
         f"{VAPI_BASE_URL}/assistant",
         headers={"Authorization": f"Bearer {VAPI_API_KEY}"},
@@ -143,7 +157,7 @@ def create_assistant(name: str, system_prompt: str, first_message: str = "Hello.
                 "maxTokens": 200,
                 "temperature": 0.7,
             },
-            "voice": {
+            "voice": voice or {
                 "provider": "vapi",
                 "voiceId": "Elliot",
                 "speed": 0.85,
@@ -165,12 +179,12 @@ def create_assistant(name: str, system_prompt: str, first_message: str = "Hello.
     response.raise_for_status()
     return response.json()
 
-def launch_knowledge_call(candidate_phone: str, knowledge_assistant_id: str) -> dict:
+def launch_call(candidate_phone: str, assistant_id: str) -> dict:
     response = requests.post(
         f"{VAPI_BASE_URL}/call",
         headers={"Authorization": f"Bearer {VAPI_API_KEY}"},
         json={
-            "assistantId": knowledge_assistant_id,
+            "assistantId": assistant_id,
             "phoneNumberId": VAPI_PHONE_NUMBER_ID,
             "customer": {
                 "number": candidate_phone,
@@ -194,10 +208,16 @@ def launch_negotiation_call(summary: str) -> dict:
     ads_phone_number = get_phone(job_ads)
     system_prompt = get_job_hunting_system_prompt(resume, job_ads, summary)
 
-    assistant = create_assistant(
-        name="negotiation assistant",
-        system_prompt=system_prompt,
-        first_message="Hi mate How is it going?",
-    )
-    call = launch_knowledge_call(ads_phone_number, assistant["id"])
-    return {"bot": "negotiation", "call": call}
+    voice_id = get_eleven_labs_voice("Salah Voice V2")
+    print("voice id", voice_id)
+    # assistant = create_assistant(
+    #     name="negotiation assistant",
+    #     system_prompt=system_prompt,
+    #     first_message="Hi mate How is it going?",
+    #     voice={"provider": "elevenlabs", "voiceId": salah_voice_id},
+    # )
+    # call = launch_call(ads_phone_number, assistant["id"])
+    # return {"bot": "negotiation", "call": call}
+
+def launch_knowledge_call(phone, assistant_id):
+    launch_call(phone, assistant_id)

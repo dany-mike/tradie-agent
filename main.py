@@ -1,5 +1,5 @@
 from fastapi import FastAPI, APIRouter, UploadFile, File, Request
-from domain import launch_knowledge_call, get_phone, get_knowledge_call_system_prompt, create_assistant, launch_negotiation_call
+from domain import get_phone, get_knowledge_call_system_prompt, create_assistant, launch_negotiation_call, launch_knowledge_call
 
 app = FastAPI()
 router = APIRouter(prefix="/launch", tags=["launch"])
