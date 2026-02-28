@@ -79,12 +79,15 @@ Here is THE RESUME
 def get_job_hunting_system_prompt(resume: str, jobAds: str) -> str:
     return f"""You are a confident, professional recruitment agent negotiating a salary offer for your candidate."""
 
-def launch_knowledge_call(candidate_phone: str, knowledge_call_system_prompt: str) -> dict:
+def create_assistant():
+    print("create assistant")
+
+def launch_knowledge_call(candidate_phone: str, knowledge_call_system_prompt: str, knowledge_assistant_id: str) -> dict:
     response = requests.post(
         f"{VAPI_BASE_URL}/call",
         headers={"Authorization": f"Bearer {VAPI_API_KEY}"},
         json={
-            "assistantId": KNOWLEDGE_ASSISTANT_ID,
+            "assistantId": knowledge_assistant_id,
             "assistantOverrides": {
                 "model": {
                     "messages": [
