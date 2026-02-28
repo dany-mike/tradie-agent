@@ -176,6 +176,8 @@ def create_assistant(name: str, system_prompt: str, first_message: str = "Hello.
             },
         },
     )
+    if not response.ok:
+        print(f"VAPI create_assistant error {response.status_code}: {response.text}")
     response.raise_for_status()
     return response.json()
 
@@ -210,14 +212,14 @@ def launch_negotiation_call(summary: str) -> dict:
 
     voice_id = get_eleven_labs_voice("Salah Voice V2")
     print("voice id", voice_id)
-    # assistant = create_assistant(
-    #     name="negotiation assistant",
-    #     system_prompt=system_prompt,
-    #     first_message="Hi mate How is it going?",
-    #     voice={"provider": "elevenlabs", "voiceId": salah_voice_id},
-    # )
-    # call = launch_call(ads_phone_number, assistant["id"])
-    # return {"bot": "negotiation", "call": call}
+    assistant = create_assistant(
+        name="negotiation assistant",
+        system_prompt=system_prompt,
+        first_message="Hi mate How is it going?",
+        voice={"provider": "11labs", "voiceId": voice_id},
+    )
+    call = launch_call(ads_phone_number, assistant["id"])
+    return {"bot": "negotiation", "call": call}
 
 def launch_knowledge_call(phone, assistant_id):
     launch_call(phone, assistant_id)
