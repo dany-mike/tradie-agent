@@ -43,6 +43,7 @@ def launch(candidate: CandidateProfile) -> dict:
 
     # TODO: call ElevenLabs API to create/select a voice
     # TODO: call VAPI API to initiate the call using the master prompt and voice
+    # create an assistant or get an existing assistant then make a call to a specific phone number via VAPI API
 
     return {
         "candidate_name": candidate.name,
