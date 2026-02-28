@@ -21,7 +21,10 @@ def get_assistant_by_id(assistant_id: str) -> dict:
 def get_tradie_phone(resume: str) -> str:
     for line in resume.splitlines():
         if "phone" in line.lower():
-            return line.split(":", 1)[-1].strip().lstrip("* ").strip()
+            number = line.split(":", 1)[-1].strip().lstrip("* ").strip()
+            if number.startswith("0"):
+                number = "+61" + number[1:]
+            return number
     return ""
 
 def get_resume() -> str:
@@ -119,6 +122,8 @@ def launch_knowledge_call(candidate_phone: str, knowledge_call_system_prompt: st
             "assistantId": knowledge_assistant_id,
             "assistantOverrides": {
                 "model": {
+                    "provider": "mistral",
+                    "model": "mistral-large-latest",
                     "messages": [
                         {"role": "system", "content": knowledge_call_system_prompt}
                     ]
@@ -130,7 +135,9 @@ def launch_knowledge_call(candidate_phone: str, knowledge_call_system_prompt: st
             },
         },
     )
-    response.raise_for_status()
+    if not response.ok:
+        print(f"VAPI error {response.status_code}: {response.text}")
+        response.raise_for_status()
     return response.json()
 
 # ---------------------------------------------------------------------------
