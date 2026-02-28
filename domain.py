@@ -150,8 +150,10 @@ def launch_negotiation_call(summary: str) -> dict:
     resume = get_resume()
     system_prompt = get_knowledge_call_system_prompt(resume)
     job_ads = get_job_ads()
+    ads_phone_number = get_phone(job_ads)
     #print(resume)
     #print(system_prompt)
     #print(job_ads)
-    #print(summary)
+    print(summary)
+    print(ads_phone_number)
     # return {"bot": "negotiation", "call": call}

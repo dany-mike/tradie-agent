@@ -24,12 +24,9 @@ async def vapi_webhook(request: Request):
 
         if assistant_id:
             artifact = message.get("artifact", {})
-            transcript = artifact.get("transcript", "")
             summary = artifact.get("summary", "")
             ended_reason = message.get("endedReason", "")
             print(f"Call ended: {ended_reason}")
-            print(f"Transcript:\n{transcript}")
-            print(f"Summary:\n{summary}")
 
             launch_negotiation_call(summary)
 
