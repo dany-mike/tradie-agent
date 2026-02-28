@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+
+# Environment
+.env
+
+# IDE
+.vscode/
+
+# Weights & Biases
+wandb/
+
+# OS
+.DS_Store
+Thumbs.db
