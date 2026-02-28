@@ -11,7 +11,7 @@ async def create_candidate(resume: UploadFile = File(...)):
     phone = get_phone(resume_text)
     knowledge_system_prompt = get_knowledge_call_system_prompt(resume_text)
     assistant = create_assistant("interview assistant", knowledge_system_prompt, "Hello here Manoa")
-    launch_knowledge_call(phone, "ad548cfc-7262-425e-8ab6-7d1779f55ac3")
+    launch_knowledge_call(phone, assistant["id"])
 
 @app.post("/webhook")
 async def vapi_webhook(request: Request):
