@@ -98,7 +98,7 @@ Here is THE RESUME
   {resume}
     """
 
-def get_job_hunting_system_prompt(resume: str, jobAds: str, summary: str = "") -> str:
+def get_job_hunting_system_prompt(resume: str, jobAds: str, summary: str = "", user_transcript: str = "") -> str:
     return f"""[Identity]
 You are a confident, assertive, and knowledgeable electrician.
 
@@ -130,7 +130,10 @@ You possess strong negotiation skills and always advocate in the best interest o
 [Information at your disposition about you]
 {summary}
 
-Full resume for reference:
+[Additional information about you]
+{user_transcript}
+
+[Full resume for reference]
 {resume}
 
 [Information at your disposition about the job ad]
@@ -205,15 +208,15 @@ def launch_call(candidate_phone: str, assistant_id: str) -> dict:
 # Goal: call tradie companies, persuasively negotiate salary using enriched profile
 # ---------------------------------------------------------------------------
 
-def launch_negotiation_call(summary: str) -> dict:
+def launch_negotiation_call(summary: str, user_transcript: str = "") -> dict:
     """Bot 2: calls the employer from the job ad to negotiate salary on behalf of the candidate."""
     resume = get_resume()
     job_ads = get_job_ads()
     ads_phone_number = get_phone(job_ads)
-    system_prompt = get_job_hunting_system_prompt(resume, job_ads, summary)
+    system_prompt = get_job_hunting_system_prompt(resume, job_ads, summary, user_transcript)
 
     voice_id = get_eleven_labs_voice("Salah Voice V2")
-    print("voice id", voice_id)
+
     assistant = create_assistant(
         name="negotiation assistant",
         system_prompt=system_prompt,

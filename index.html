@@ -247,6 +247,43 @@
       color: #fca5a5;
     }
 
+    /* Status-based cards */
+    .response-card.call-in-progress {
+      background: rgba(34, 197, 94, 0.07);
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      color: #86efac;
+    }
+
+    .response-card.waiting-negotiation {
+      background: rgba(255, 107, 43, 0.07);
+      border: 1px solid rgba(255, 107, 43, 0.4);
+      color: #ffb894;
+    }
+
+    .response-card.scenario-ended {
+      background: rgba(239, 68, 68, 0.07);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 0.6rem;
+      vertical-align: middle;
+    }
+
+    .call-in-progress .status-dot { background: #22c55e; animation: pulse 1.4s ease-in-out infinite; }
+    .waiting-negotiation .status-dot { background: #ff6b2b; animation: pulse 1.4s ease-in-out infinite; }
+    .scenario-ended .status-dot { background: #ef4444; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
@@ -369,7 +406,9 @@
 
     <!-- Response -->
     <template x-if="response">
-      <div class="response-card" :class="responseType" x-text="response"></div>
+      <div class="response-card" :class="responseType">
+        <span class="status-dot" x-show="['call-in-progress','waiting-negotiation','scenario-ended'].includes(responseType)"></span><span x-text="response"></span>
+      </div>
     </template>
 
     <div class="footer">POST /launch/ · localhost:8000</div>
@@ -383,9 +422,16 @@
         loading: false,
         response: null,
         responseType: 'success',
+        pollingInterval: null,
 
-        // ── Change this to your actual API URL ──
         API_URL: 'http://localhost:8000/launch/',
+        STATUS_URL: 'http://localhost:8000/status',
+
+        STATUS_MAP: {
+          'call_in_progress':       { label: 'Call in progress',            type: 'call-in-progress'  },
+          'waiting_for_negotiation':{ label: 'Waiting for negotiation call', type: 'waiting-negotiation'},
+          'scenario_ended':         { label: 'Scenario ended',               type: 'scenario-ended'    },
+        },
 
         handleDrop(event) {
           this.dragging = false;
@@ -399,9 +445,37 @@
         },
 
         removeFile() {
+          this.stopPolling();
           this.file = null;
           this.response = null;
           this.$refs.fileInput.value = '';
+        },
+
+        applyStatus(status) {
+          const s = this.STATUS_MAP[status];
+          if (s) {
+            this.response = s.label;
+            this.responseType = s.type;
+          }
+        },
+
+        startPolling() {
+          this.stopPolling();
+          this.pollingInterval = setInterval(async () => {
+            try {
+              const res = await fetch(this.STATUS_URL);
+              const data = await res.json();
+              this.applyStatus(data.status);
+              if (data.status === 'scenario_ended') this.stopPolling();
+            } catch (e) { /* server not reachable yet, keep trying */ }
+          }, 2000);
+        },
+
+        stopPolling() {
+          if (this.pollingInterval) {
+            clearInterval(this.pollingInterval);
+            this.pollingInterval = null;
+          }
         },
 
         async submit() {
@@ -409,6 +483,7 @@
 
           this.loading = true;
           this.response = null;
+          this.stopPolling();
 
           const formData = new FormData();
           formData.append('resume', this.file);
@@ -422,8 +497,8 @@
             const data = await res.json();
 
             if (res.ok) {
-              this.responseType = 'success';
-              this.response = JSON.stringify(data, null, 2);
+              this.applyStatus(data.status);
+              this.startPolling();
             } else {
               this.responseType = 'error';
               this.response = `Error ${res.status}: ${JSON.stringify(data, null, 2)}`;
