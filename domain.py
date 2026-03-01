@@ -222,7 +222,7 @@ def launch_negotiation_call(summary: str, user_transcript: str = "") -> dict:
     ads_phone_number = get_phone(job_ads)
     system_prompt = get_job_hunting_system_prompt(resume, job_ads, summary, user_transcript)
 
-    voice_id = get_eleven_labs_voice("Salah Voice V2")
+    voice_id = get_eleven_labs_voice("Salah Voice V3")
 
     assistant = create_assistant(
         name="negotiation assistant",
