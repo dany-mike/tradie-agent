@@ -2,7 +2,8 @@ from fastapi import FastAPI, APIRouter, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from domain import get_phone, get_knowledge_call_system_prompt, create_assistant, launch_negotiation_call, launch_knowledge_call, SERVER_URL
+from domain import get_phone, get_knowledge_call_system_prompt, create_assistant, launch_negotiation_call, launch_knowledge_call, SERVER_URL, VAPI_API_KEY, VAPI_BASE_URL
+import requests
 
 app = FastAPI()
 app.mount("/assets", StaticFiles(directory="assets"), name="assets")
@@ -11,7 +12,7 @@ router = APIRouter(prefix="/launch", tags=["launch"])
 call_state = {
     "status": "idle",
     "knowledge_assistant_id": None,
-    "negotiation_assistant_id": None,
+    "negotiation_call_id": None,
 }
 
 app.add_middleware(
@@ -27,6 +28,17 @@ async def serve_frontend():
 
 @app.get("/status")
 async def get_status():
+    if call_state["negotiation_call_id"] and call_state["status"] in ("waiting_for_negotiation", "call_in_progress"):
+        resp = requests.get(
+            f"{VAPI_BASE_URL}/call/{call_state['negotiation_call_id']}",
+            headers={"Authorization": f"Bearer {VAPI_API_KEY}"},
+        )
+        if resp.ok:
+            vapi_status = resp.json().get("status")
+            if vapi_status == "ended":
+                call_state["status"] = "scenario_ended"
+            elif vapi_status in ("in-progress", "ringing"):
+                call_state["status"] = "call_in_progress"
     return {"status": call_state["status"]}
 
 @router.post("/", status_code=201)
@@ -40,7 +52,7 @@ async def create_candidate(resume: UploadFile = File(...)):
 
     call_state["status"] = "call_in_progress"
     call_state["knowledge_assistant_id"] = assistant["id"]
-    call_state["negotiation_assistant_id"] = None
+    call_state["negotiation_call_id"] = None
 
     return {"status": "call_in_progress", "message": "Knowledge call launched successfully"}
 
@@ -66,13 +78,7 @@ async def vapi_webhook(request: Request):
                 user_transcript = "\n".join(user_messages)
                 result = launch_negotiation_call(summary, user_transcript)
                 call_state["status"] = "waiting_for_negotiation"
-                neg_assistant_id = result.get("call", {}).get("assistantId")
-                if neg_assistant_id:
-                    call_state["negotiation_assistant_id"] = neg_assistant_id
-
-            # Bot 2 (negotiation call) ended → scenario complete
-            elif assistant_id == call_state.get("negotiation_assistant_id"):
-                call_state["status"] = "scenario_ended"
+                call_state["negotiation_call_id"] = result.get("call", {}).get("id")
 
     return {"status": "ok"}
 
