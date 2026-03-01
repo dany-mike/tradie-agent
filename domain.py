@@ -227,7 +227,7 @@ def launch_negotiation_call(summary: str, user_transcript: str = "") -> dict:
     assistant = create_assistant(
         name="negotiation assistant",
         system_prompt=system_prompt,
-        first_message="Hi mate How is it going?",
+        first_message="Hi mate I'm Sala , I'm calling for the senior electrician role , is it a good moment to have a little chat?",
         voice={"provider": "11labs", "voiceId": voice_id},
     )
     call = launch_call(ads_phone_number, assistant["id"])
