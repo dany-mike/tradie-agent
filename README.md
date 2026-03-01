@@ -2,6 +2,11 @@
 
 > Mistral AI Hackathon Project
 
+## What It Does
+
+Salary negotiation is awkward, stressful, and most people leave money on the table. **A Profitable Digital Twin** removes you from that equation entirely. Upload your CV, and two AI voice bots handle the rest — one interviews you to understand your worth, the other calls the employer and negotiates your best salary. You just wait for the result.
+
+## Technical Description
 An autonomous AI system that handles job application calls on behalf of a candidate. It runs two sequential AI voice bots via [Vapi](https://vapi.ai):
 
 1. **Bot 1 — Interviewer**: Calls the candidate to extract salary expectations and key differentiators.
