@@ -168,7 +168,9 @@ def create_assistant(name: str, system_prompt: str, first_message: str = "Hello.
         "firstMessage": first_message,
         "voicemailMessage": "Please call back when you're available.",
         "endCallMessage": "Goodbye.",
-        "backgroundDenoisingEnabled": True,
+        "backgroundSpeechDenoisingPlan": {
+            "smartDenoisingPlan": {"enabled": True},
+        },
         "analysisPlan": {
             "summaryPlan": {"enabled": True},
         },

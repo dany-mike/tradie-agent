@@ -35,7 +35,7 @@ async def create_candidate(resume: UploadFile = File(...)):
     resume_text = content.decode("utf-8")
     phone = get_phone(resume_text)
     knowledge_system_prompt = get_knowledge_call_system_prompt(resume_text)
-    assistant = create_assistant("interview assistant", knowledge_system_prompt, "Hello here Manoa", server_url=f"{SERVER_URL}/webhook")
+    assistant = create_assistant("interview assistant", knowledge_system_prompt, "Hello here Manoa", voice={"provider": "11labs", "voiceId": "FGY2WhTYpPnrIDTdsKH5"}, server_url=f"{SERVER_URL}/webhook")
     launch_knowledge_call(phone, assistant["id"])
 
     call_state["status"] = "call_in_progress"
