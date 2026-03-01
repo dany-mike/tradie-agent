@@ -172,7 +172,7 @@ def create_assistant(name: str, system_prompt: str, first_message: str = "Hello.
             "smartDenoisingPlan": {"enabled": True},
         },
         "analysisPlan": {
-            "summaryPlan": {"enabled": True},
+            "summaryPrompt": "Summarize the call. Extract and include: current salary, minimum acceptable salary, special skills or differentiators, and any other key information the candidate shared.",
         },
     }
     if server_url:
